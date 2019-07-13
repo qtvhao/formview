@@ -4,6 +4,7 @@
 namespace App\Helpers\Wilson\Form;
 
 
+use App\Helpers\Wilson\Form\Collection\Actions;
 use App\Helpers\Wilson\Form\Collection\Fields;
 use App\Helpers\Wilson\Helper;
 
@@ -15,16 +16,19 @@ class Form extends Helper
      * @var Fields
      */
     private $fields;
-    private $buttons;
+    /**
+     * @var Actions
+     */
+    private $actions;
 
     public function __toString() {
-        return $this->getFormHtml();
+        return $this->getHtml();
     }
 
-    public function getFormHtml()
+    public function getHtml()
     {
         $id = $this->getId();
-        $form = $this->getInnerFormHtml();
+        $form = $this->getOuterFormHtml();
         return <<<HTML
 <div class="ws-form-container ws-form-container-$id">
     <div class="ws-form-wrapper ws-form-wrapper-$id">
@@ -36,17 +40,27 @@ HTML;
 
     private function getInnerFormHtml()
     {
-        $id = $this->getId();
         $fields = $this->getFields();
-        $buttons = $this->buttons;
+        $actions = $this->getActions();
+
+        return "$fields $actions";
+    }
+
+    private function getOuterFormHtml()
+    {
+        $id = $this->getId();
+        $innerForm = $this->getInnerFormHtml();
         return <<<HTML
 <form id="$id" class="ws-form ws-form-$id">
-$fields
-$buttons
+$innerForm
 </form>
 HTML;
     }
 
+    /**
+     * @param mixed ...$args
+     * @return Form
+     */
     public static function create(...$args)
     {
         return new static(...$args);
@@ -56,6 +70,7 @@ HTML;
     {
         $this->setId($id);
         $this->setFields(new Fields());
+        $this->setActions(new Actions());
     }
 
     /**
@@ -91,6 +106,24 @@ HTML;
     public function setFields($fields)
     {
         $this->fields = $fields;
+        return $this;
+    }
+
+    /**
+     * @return Actions
+     */
+    public function getActions()
+    {
+        return $this->actions;
+    }
+
+    /**
+     * @param Actions $actions
+     * @return Form
+     */
+    public function setActions($actions)
+    {
+        $this->actions = $actions;
         return $this;
     }
 }
